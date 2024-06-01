@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+        <html lang="fr">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Connexion</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    background-color: #9dbaff;
+                    margin: 0;
+                }
+                .container {
+                    text-align: center;
+                    background: white;
+                    padding: 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                    padding-right:100px;
+                    padding-left:100px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Bienvenue</h1>
+                <form id="inputForm" action="/home" method="POST">
+                    <input type="text" id="nameInput" name="name" placeholder="Entrez votre prénom"><br><br>
+                    <input type="text" id="cityInput" name="city" placeholder="Entrez le nom de votre ville">
+                    <br><br>
+                    <button type="submit">Suivant</button>
+                </form>
+            </div>
+        </body>
+        </html>

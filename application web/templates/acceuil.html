@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            background-color: #9dbaff;
+            margin: 0;
+            position: relative;
+        }
+        .main-container {
+            background-color: #7da0e0;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 850px;
+            padding-right: 55px;
+            padding-bottom: 50px;
+            margin-top: 37px;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 2%;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-top: 5vh;
+            width: 100%;
+        }
+        .welcomeText, .nom {
+            font-size: 24px;
+        }
+        .depart, .additional-containers {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 2%;
+            margin-top: 2vh;
+            width: 100%;
+            text-align: center;
+        }
+        .additional-container {
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: calc(25% - 10px);
+            margin-bottom: 2vh;
+            text-align: center;
+        }
+        .titre {
+            text-align: right;
+            margin-left: 10px;
+        }
+        .no-bold {
+            font-weight: normal;
+        }
+        .logout-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .logout-button {
+            background-color: #8d8d8d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 50px;
+            margin-top: 20px;
+        }
+        .logout-button:hover {
+            background-color: #ff2a3b;
+        }
+        .nom {
+            font-weight: bold;
+        }
+        .gpt-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 100%;
+            text-align: center;
+            margin-top: 2vh;
+        }
+        .charlotte {
+            text-align: center;
+            margin-top: 32px;
+        }
+        .sudoku-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 100%;
+            text-align: center;
+            margin-top: 2vh;
+        }
+        .extra-container {
+            background: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 50px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #map {
+            height: 200px;
+            width: 100%;
+            margin-top: 2vh;
+        }
+    </style>
+    <script>
+        h(error => console.error('Error fetching train info:', error));
+        function sendGPTRequest() {
+            const userInput = document.getElementById('gpt-input').value;
+            fetch('/gpt_response', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('bot-response').innerText = data.response;
+            })
+            .catch(error => console.error('Error sending GPT request:', error));
+        }
+
+        function clearInput() {
+            document.getElementById('gpt-input').value = ''; // Efface la valeur du champ de texte
+        }
+
+        function generateSudokuGrid(grid) {
+            const sudokuGrid = document.getElementById('sudoku-grid');
+            let html = '';
+            for (let i = 0; i < 9; i++) {
+                html += '<tr>';
+                for (let j = 0; j < 9; j++) {
+                    html += `<td>${grid[i][j]}</td>`;
+                }
+                html += '</tr>';
+            }
+            sudokuGrid.innerHTML = html;
+        }
+
+        function solveSudoku() {
+            fetch('https://sugoku.herokuapp.com/solve', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ board: sudokuGrid })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'solved') {
+                    generateSudokuGrid(data.solution);
+                } else {
+                    console.error('Failed to solve Sudoku:', data);
+                }
+            })
+            .catch(error => console.error('Error solving Sudoku:', error));
+        }
+
+        function showSolution() {
+            fetch('https://sugoku.herokuapp.com/solve', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ board: sudokuGrid })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'solved') {
+                    generateSudokuGrid(data.solution);
+                } else {
+                    console.error('Failed to solve Sudoku:', data);
+                }
+            })
+            .catch(error => console.error('Error solving Sudoku:', error));
+        }
+        
+        window.onload = function() {
+            fetch('https://sugoku.herokuapp.com/board?difficulty=easy')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    generateSudokuGrid(data.board);
+                } else {
+                    console.error('Failed to fetch Sudoku grid:', data);
+                }
+            })
+            .catch(error => console.error('Error fetching Sudoku grid:', error));
+        };
+    </script>
+
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBf8GB8MJ9X8lfemvQV3PIFdU1s1Ge97Vg&callback=initMap"></script>
+
+</head>
+<body onload="initMap()">
+<div class="logout-container">
+    <form action="/start" method="get">
+        <button type="submit" class="logout-button">Déconnexion</button>
+    </form>
+    <div class="extra-container">    <br>    <h4>Collège :</h4>
+        <a href="https://collegedusud.ch">Collège du sud</a>
+        <br><br>
+        <a href="https://isa.fr.ch">ISA</a>
+        <br><br>
+        <h4>Jeux :</h4>
+        <a href="/sudoku">Sudoku</a>
+        <br><br>
+        <a href="/snake">Snake</a><br><br>
+        <h4>Autres :</h4>
+        <a href="/login">Messages</a>
+        <br><br>
+    </div>
+</div>
+<div class="main-container">
+    <div class="container">
+        <marquee behavior="scroll" direction="left" width="90%">
+            <p class="nom"><span class="welcomeText">Bienvenue {{nom}} 👋</span></p>
+        </marquee>
+    </div>
+    <br><br>
+
+    <script>
+        let train = train;
+
+        function updateTrain(city) {
+            console.log(`Updating train information for city: ${city}`);
+            fetch(`/next_train?city=${city}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Train data received:', data);
+                    document.getElementById('train-info').innerText = data.train;
+                })
+                .catch(error => console.error('Error fetching train info:', error));
+        }
+
+
+        function updateVariable() {
+            train = updateTrain(ville)
+            document.getElementById('variable').textContent = myVariable;
+        }
+
+        // Met à jour la variable toutes les 60000 millisecondes (1 minute)
+        setInterval(updateVariable, 10000);
+
+        // Optionnel: Pour une mise à jour immédiate au chargement de la page
+        updateVariable();
+    </script>
+
+    <div class="depart">
+        <h4>Prochain départ depuis <span id="ville">{{ville}}</span> 🚂 : <span id="train-info" class="no-bold">{{train}}</span></h4>
+    </div>
+    <div class="container">
+        <style>
+            #map {
+                height: 400px;
+                width: 90%;
+            }
+            #input-container {
+                margin: 20px 0;
+            }
+        </style>
+        <h4>Carte</h4>
+        <h5>Centrée sur la capitale de la Suisse Romande</h5>
+        <center>
+            <div id="input-container">
+                <input type="text" id="city-input" placeholder="Entrez une ville">
+                <button onclick="geocodeCity()">Afficher</button>
+            </div>
+            <div id="map"></div>
+        
+            <script>
+                let map;
+                let geocoder;
+        
+                function initMap() {
+                    map = new google.maps.Map(document.getElementById('map'), {
+                        center: { lat: 46.600724, lng: 6.921133 }, // Centré sur la capitale par défaut
+                        zoom: 13
+                    });
+                    geocoder = new google.maps.Geocoder();
+                }
+        
+                function geocodeCity() {
+                    const city = document.getElementById('city-input').value;
+                    geocoder.geocode({ 'address': city }, function(results, status) {
+                        if (status === 'OK') {
+                            map.setCenter(results[0].geometry.location);
+                            new google.maps.Marker({
+                                map: map,
+                                position: results[0].geometry.location
+                            });
+                        } else {
+                            alert('Geocode was not successful for the following reason: ' + status);
+                        }
+                    });
+                }
+            </script>
+        </center>
+        <br><br>
+    </div>
+    <br>
+    <div class="additional-containers">
+        <h4 class="charlotte">Météo 🌤️</h4>
+        <br><br><br>
+        <div class="additional-container">
+            <h6>Température: <span id="temp">{{var1}}</span> °C</h6>
+        </div>
+        <div class="additional-container">
+            <h6>Vent: <span id="vent">{{var3}}</span> Km/h</h6>
+        </div>
+        <div class="additional-container">
+            <h6>Pluie: <span id="pluie">{{var2}}</span> mm</h6>
+        </div>
+    </div> <br>
+    <div class="gpt-container">
+        <h4>Pose moi une question</h4>
+        <input type="text" id="gpt-input" placeholder="Posez moi une question">
+        <button onclick="sendGPTRequest();clearInput();">Envoyer</button>
+        <p id="bot-response"></p> 
+    </div>
+</div>
+</div>
+<br>
+</body>
+</html>
